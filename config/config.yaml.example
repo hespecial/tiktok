@@ -1,0 +1,11 @@
+app:
+  port: 8080
+  mode: "debug" # gin mode: debug | release | test
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password:
+  database: tiktok
+  charset: utf8mb4
