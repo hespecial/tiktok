@@ -17,5 +17,8 @@ func StartServer() {
 		})
 	})
 
+	api := router.Group("/api")
+	api.POST("/login")
+
 	log.Fatal(router.Run(fmt.Sprintf(":%s", config.Conf.App.Port)))
 }

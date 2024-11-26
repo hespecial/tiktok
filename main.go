@@ -1,6 +1,7 @@
 package main
 
 import (
+	"tiktok/common/logger"
 	"tiktok/config"
 	"tiktok/internal/repo/dao"
 	"tiktok/internal/router"
@@ -8,6 +9,7 @@ import (
 
 func main() {
 	config.InitConfig()
+	logger.InitLogger()
 	dao.InitMysql()
 	router.StartServer()
 }

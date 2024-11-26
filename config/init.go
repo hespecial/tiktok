@@ -7,11 +7,6 @@ import (
 
 var Conf *Config
 
-type Config struct {
-	App   App
-	Mysql Mysql
-}
-
 func InitConfig() {
 	viper.SetConfigFile(configFile)
 	err := viper.ReadInConfig()
