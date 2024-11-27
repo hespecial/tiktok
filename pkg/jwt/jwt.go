@@ -18,7 +18,7 @@ func GenerateToken(userId int64) (string, error) {
 			Issuer:    config.JwtIssuer,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * config.JwtTtl)),
 		},
-	}).SignedString(config.JwtSecret)
+	}).SignedString([]byte(config.JwtSecret))
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +27,7 @@ func GenerateToken(userId int64) (string, error) {
 
 func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return config.JwtSecret, nil
+		return []byte(config.JwtSecret), nil
 	})
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ type Code int
 const (
 	Success Code = 1000 + iota
 	InvalidParams
+	InvalidRequest
 	BadRequest
 	Unauthorized
 )

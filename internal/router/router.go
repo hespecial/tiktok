@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"tiktok/config"
+	"tiktok/internal/controller"
 )
 
 func StartServer() {
@@ -18,7 +19,8 @@ func StartServer() {
 	})
 
 	api := router.Group("/api")
-	api.POST("/login")
+	api.POST("/login", controller.Login)
+	api.POST("/register", controller.Register)
 
 	log.Fatal(router.Run(fmt.Sprintf(":%s", config.Conf.App.Port)))
 }
