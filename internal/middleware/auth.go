@@ -2,14 +2,14 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"tiktok/common/enum"
 	"tiktok/common/response"
-	"tiktok/config"
 	"tiktok/pkg/jwt"
 )
 
 func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader(config.JwtTokenName)
+		token := c.GetHeader(enum.JwtTokenName)
 		if token == "" {
 			response.Unauthorized(c)
 			c.Abort()
@@ -23,7 +23,7 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 
-		c.Set(config.ContextUserId, claims.UserId)
+		c.Set(enum.ContextUserId, claims.UserId)
 		c.Next()
 	}
 }

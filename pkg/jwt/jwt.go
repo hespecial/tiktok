@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
-	"tiktok/config"
+	"tiktok/common/enum"
 	"time"
 )
 
@@ -15,10 +15,10 @@ func GenerateToken(userId int64) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    config.JwtIssuer,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * config.JwtTtl)),
+			Issuer:    enum.JwtIssuer,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * enum.JwtTtl)),
 		},
-	}).SignedString([]byte(config.JwtSecret))
+	}).SignedString([]byte(enum.JwtSecret))
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +27,7 @@ func GenerateToken(userId int64) (string, error) {
 
 func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.JwtSecret), nil
+		return []byte(enum.JwtSecret), nil
 	})
 	if err != nil {
 		return nil, err

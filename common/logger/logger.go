@@ -6,6 +6,7 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"log"
 	"log/slog"
+	"runtime"
 	"tiktok/config"
 	"time"
 )
@@ -15,7 +16,7 @@ func InitLogger() {
 
 	writer, err := rotatelogs.New(
 		file+"_%Y%m%d.log",
-		//rotatelogs.WithLinkName(file),
+		rotatelogs.WithLinkName(file+".log"),
 		rotatelogs.WithMaxAge(time.Hour*24*7),
 		rotatelogs.WithRotationTime(time.Hour*24),
 	)
@@ -60,6 +61,16 @@ func (h *Handler) Handle(_ context.Context, r slog.Record) error {
 	logLevel := r.Level.String()
 	msg := r.Message
 
+	// 获取调用者信息
+	pc, _, line, ok := runtime.Caller(6) // 跳过的调用堆栈深度，可根据需要调整
+	var callerInfo string
+	if ok {
+		funcName := runtime.FuncForPC(pc).Name()
+		callerInfo = fmt.Sprintf("%s:%d", funcName, line)
+	} else {
+		callerInfo = "unknown caller"
+	}
+
 	// 读取键值对
 	attrs := ""
 	r.Attrs(func(a slog.Attr) bool {
@@ -68,7 +79,7 @@ func (h *Handler) Handle(_ context.Context, r slog.Record) error {
 	})
 
 	// 输出日志
-	logLine := fmt.Sprintf("[%s] (%s): %s %s\n", logLevel, timeStr, msg, attrs)
+	logLine := fmt.Sprintf("[%s] (%s): 『%s』 %s %s\n", logLevel, timeStr, callerInfo, msg, attrs)
 	_, err := h.w.Write([]byte(logLine))
 	return err
 }

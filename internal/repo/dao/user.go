@@ -11,6 +11,7 @@ type User struct {
 type UserRepo interface {
 	GetUserByUsername(username string) (*User, error)
 	CreateUser(user *User) error
+	GetUserById(id int64) (*User, error)
 }
 
 type UserDao struct {
@@ -35,4 +36,9 @@ func (u *UserDao) GetUserByUsername(username string) (*User, error) {
 
 func (u *UserDao) CreateUser(user *User) error {
 	return u.db.Create(user).Error
+}
+
+func (u *UserDao) GetUserById(id int64) (*User, error) {
+	var user User
+	return &user, u.db.Where("id = ?", id).First(&user).Error
 }

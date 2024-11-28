@@ -19,7 +19,13 @@ func Handle(ctx *gin.Context, c code.Code, data interface{}, message ...string) 
 		msg = message[0]
 	}
 
-	if c != code.Success {
+	switch c {
+	case code.Success:
+		break
+	case code.BadRequest:
+		slog.Error(msg)
+		msg = c.GetMessage()
+	default:
 		slog.Info(msg)
 	}
 
@@ -30,22 +36,27 @@ func Handle(ctx *gin.Context, c code.Code, data interface{}, message ...string) 
 	})
 }
 
-func InvalidParams(ctx *gin.Context, message ...string) {
-	Handle(ctx, code.InvalidParams, nil, message...)
+func InvalidParams(ctx *gin.Context, err error) {
+	Handle(ctx, code.InvalidParams, nil, err.Error())
 }
 
 func InvalidRequest(ctx *gin.Context, message ...string) {
 	Handle(ctx, code.InvalidRequest, nil, message...)
 }
 
-func BadRequest(ctx *gin.Context, message ...string) {
-	Handle(ctx, code.BadRequest, nil, message...)
+func BadRequest(ctx *gin.Context, err error) {
+	Handle(ctx, code.BadRequest, nil, err.Error())
 }
 
-func Unauthorized(ctx *gin.Context, message ...string) {
-	Handle(ctx, code.Unauthorized, nil, message...)
+func Unauthorized(ctx *gin.Context) {
+	Handle(ctx, code.Unauthorized, nil)
 }
 
 func Success(ctx *gin.Context, data interface{}) {
+	if data == nil {
+		data = map[string]interface{}{
+			"result": true,
+		}
+	}
 	Handle(ctx, code.Success, data)
 }
