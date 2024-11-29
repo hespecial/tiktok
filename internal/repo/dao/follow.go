@@ -1,41 +1,33 @@
 package dao
 
 import (
+	"context"
 	"errors"
 	"gorm.io/gorm"
 	"tiktok/common/enum"
+	"tiktok/internal/model"
 )
 
-type Follow struct {
-	Id       int64
-	UserId   int64
-	FollowId int64
-	Status   uint8
+type FollowDao interface {
+	GetRelation(ctx context.Context, userId, followId int64) (*model.Follow, error)
+	CreateRelation(ctx context.Context, userId, followId int64) error
+	UpdateRelation(ctx context.Context, userId, followId int64, action enum.Relation) error
+	GetFollowIds(ctx context.Context, userId int64, _type enum.Relation) ([]int64, error)
+	GetFollowCount(ctx context.Context, userId int64, _type enum.Relation) (int64, error)
 }
 
-func (*Follow) TableName() string {
-	return "follows"
-}
-
-type FollowRepo interface {
-	GetRelation(userId, followId int64) (*Follow, error)
-	CreateRelation(userId, followId int64) error
-	UpdateRelation(userId, followId int64, action enum.Relation) error
-	GetFollowIds(userId int64, _type enum.Relation) ([]int64, error)
-	GetFollowCount(userId int64, _type enum.Relation) (int64, error)
-}
-
-type FollowDao struct {
+type followDao struct {
 	db *gorm.DB
 }
 
-func NewFollowDao(db *gorm.DB) *FollowDao {
-	return &FollowDao{db: db}
+func NewFollowDao(db *gorm.DB) FollowDao {
+	return &followDao{db: db}
 }
 
-func (f *FollowDao) GetRelation(userId, followId int64) (*Follow, error) {
-	var relation Follow
-	err := f.db.Where("user_id = ? AND follow_id = ?", userId, followId).
+func (f *followDao) GetRelation(ctx context.Context, userId, followId int64) (*model.Follow, error) {
+	var relation model.Follow
+	err := f.db.WithContext(ctx).
+		Where("user_id = ? AND follow_id = ?", userId, followId).
 		First(&relation).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -43,42 +35,46 @@ func (f *FollowDao) GetRelation(userId, followId int64) (*Follow, error) {
 	return &relation, err
 }
 
-func (f *FollowDao) CreateRelation(userId, followId int64) error {
-	return f.db.Where("user_id = ? AND follow_id = ?", userId, followId).
-		Create(&Follow{
+func (f *followDao) CreateRelation(ctx context.Context, userId, followId int64) error {
+	return f.db.WithContext(ctx).
+		Where("user_id = ? AND follow_id = ?", userId, followId).
+		Create(&model.Follow{
 			UserId:   userId,
 			FollowId: followId,
 			Status:   uint8(enum.RelationFollow),
 		}).Error
 }
 
-func (f *FollowDao) UpdateRelation(userId, followId int64, action enum.Relation) error {
-	var follow Follow
-	return f.db.Table(follow.TableName()).
+func (f *followDao) UpdateRelation(ctx context.Context, userId, followId int64, action enum.Relation) error {
+	var follow model.Follow
+	return f.db.WithContext(ctx).
+		Table(follow.TableName()).
 		Where("user_id = ? AND follow_id = ?", userId, followId).
 		Update("status", action).Error
 }
 
-func (f *FollowDao) GetFollowIds(userId int64, _type enum.Relation) ([]int64, error) {
+func (f *followDao) GetFollowIds(ctx context.Context, userId int64, _type enum.Relation) ([]int64, error) {
 	var list []int64
-	var follow Follow
+	var follow model.Follow
 	idx := "user_id"
 	if _type == enum.RelationFollower {
 		idx = "follow_id"
 	}
-	return list, f.db.Table(follow.TableName()).
+	return list, f.db.WithContext(ctx).
+		Table(follow.TableName()).
 		Where(idx+" = ? AND status = ?", userId, enum.RelationFollow).
 		Pluck("follow_id", &list).Error
 }
 
-func (f *FollowDao) GetFollowCount(userId int64, _type enum.Relation) (int64, error) {
+func (f *followDao) GetFollowCount(ctx context.Context, userId int64, _type enum.Relation) (int64, error) {
 	var count int64
-	var follow Follow
+	var follow model.Follow
 	idx := "user_id"
 	if _type == enum.RelationFollower {
 		idx = "follow_id"
 	}
-	return count, f.db.Table(follow.TableName()).
+	return count, f.db.WithContext(ctx).
+		Table(follow.TableName()).
 		Where(idx+" = ? AND status = ?", userId, enum.RelationFollow).
 		Count(&count).Error
 }

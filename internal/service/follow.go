@@ -1,71 +1,71 @@
 package service
 
 import (
+	"context"
 	"errors"
-	"gorm.io/gorm"
 	"tiktok/common/enum"
-	"tiktok/internal/repo/dao"
+	"tiktok/internal/repo"
 )
 
 type FollowService interface {
-	Follow(userId, followId int64) error
-	Unfollow(userId, followId int64) error
-	GetFollowingList(userId int64) ([]*UserInfo, error)
-	GetFollowerList(userId int64) ([]*UserInfo, error)
+	Follow(ctx context.Context, userId, followId int64) error
+	Unfollow(ctx context.Context, userId, followId int64) error
+	GetFollowingList(ctx context.Context, userId int64) ([]*UserInfo, error)
+	GetFollowerList(ctx context.Context, userId int64) ([]*UserInfo, error)
 }
 
 type FollowServiceImpl struct {
-	repo     *dao.FollowDao
-	userRepo *dao.UserDao
+	repo     repo.FollowRepo
+	userRepo repo.UserRepo
 }
 
-func NewFollowService(db *gorm.DB) FollowService {
+func NewFollowService(repo repo.FollowRepo, userRepo repo.UserRepo) FollowService {
 	return &FollowServiceImpl{
-		repo:     dao.NewFollowDao(db),
-		userRepo: dao.NewUserDao(db),
+		repo:     repo,
+		userRepo: userRepo,
 	}
 }
 
-func (s *FollowServiceImpl) Follow(userId, followId int64) error {
-	relation, err := s.repo.GetRelation(userId, followId)
+func (s *FollowServiceImpl) Follow(ctx context.Context, userId, followId int64) error {
+	relation, err := s.repo.GetRelation(ctx, userId, followId)
 	if err != nil {
 		return err
 	}
 	if relation != nil {
-		return s.repo.UpdateRelation(userId, followId, enum.RelationFollow)
+		return s.repo.UpdateRelation(ctx, userId, followId, enum.RelationFollow)
 	}
-	return s.repo.CreateRelation(userId, followId)
+	return s.repo.CreateRelation(ctx, userId, followId)
 }
 
-func (s *FollowServiceImpl) Unfollow(userId, followId int64) error {
-	relation, err := s.repo.GetRelation(userId, followId)
+func (s *FollowServiceImpl) Unfollow(ctx context.Context, userId, followId int64) error {
+	relation, err := s.repo.GetRelation(ctx, userId, followId)
 	if err != nil {
 		return err
 	}
 	if relation == nil {
 		return errors.New("bad request unfollow user")
 	}
-	return s.repo.UpdateRelation(userId, followId, enum.RelationUnfollow)
+	return s.repo.UpdateRelation(ctx, userId, followId, enum.RelationUnfollow)
 }
 
-func (s *FollowServiceImpl) GetFollowingList(userId int64) ([]*UserInfo, error) {
-	ids, err := s.repo.GetFollowIds(userId, enum.RelationFollowing)
+func (s *FollowServiceImpl) GetFollowingList(ctx context.Context, userId int64) ([]*UserInfo, error) {
+	ids, err := s.repo.GetFollowIds(ctx, userId, enum.RelationFollowing)
 	if err != nil {
 		return nil, err
 	}
 
 	var list []*UserInfo
 	for _, id := range ids {
-		user, err := s.userRepo.GetUserById(id)
+		user, err := s.userRepo.GetUserById(ctx, id)
 		if err != nil {
 			return nil, err
 		}
 
-		followingCnt, err := s.repo.GetFollowCount(id, enum.RelationFollowing)
+		followingCnt, err := s.repo.GetFollowCount(ctx, id, enum.RelationFollowing)
 		if err != nil {
 			return nil, err
 		}
-		followerCnt, err := s.repo.GetFollowCount(id, enum.RelationFollower)
+		followerCnt, err := s.repo.GetFollowCount(ctx, id, enum.RelationFollower)
 		if err != nil {
 			return nil, err
 		}
@@ -84,24 +84,24 @@ func (s *FollowServiceImpl) GetFollowingList(userId int64) ([]*UserInfo, error) 
 	return list, nil
 }
 
-func (s *FollowServiceImpl) GetFollowerList(userId int64) ([]*UserInfo, error) {
-	ids, err := s.repo.GetFollowIds(userId, enum.RelationFollower)
+func (s *FollowServiceImpl) GetFollowerList(ctx context.Context, userId int64) ([]*UserInfo, error) {
+	ids, err := s.repo.GetFollowIds(ctx, userId, enum.RelationFollower)
 	if err != nil {
 		return nil, err
 	}
 
 	var list []*UserInfo
 	for _, id := range ids {
-		user, err := s.userRepo.GetUserById(id)
+		user, err := s.userRepo.GetUserById(ctx, id)
 		if err != nil {
 			return nil, err
 		}
 
-		followingCnt, err := s.repo.GetFollowCount(id, enum.RelationFollowing)
+		followingCnt, err := s.repo.GetFollowCount(ctx, id, enum.RelationFollowing)
 		if err != nil {
 			return nil, err
 		}
-		followerCnt, err := s.repo.GetFollowCount(id, enum.RelationFollower)
+		followerCnt, err := s.repo.GetFollowCount(ctx, id, enum.RelationFollower)
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ func (s *FollowServiceImpl) GetFollowerList(userId int64) ([]*UserInfo, error) {
 		}
 
 		// 用户是否关注了他的粉丝
-		relation, err := s.repo.GetRelation(userId, id)
+		relation, err := s.repo.GetRelation(ctx, userId, id)
 		if err != nil {
 			return nil, err
 		}

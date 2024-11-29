@@ -3,11 +3,21 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"tiktok/common/response"
-	"tiktok/internal/repo/dao"
+	"tiktok/internal/repo"
 	"tiktok/internal/service"
 )
 
-func DealRelation(c *gin.Context) {
+type FollowController struct {
+	service service.FollowService
+}
+
+func NewFollowController(service service.FollowService) *FollowController {
+	return &FollowController{
+		service: service,
+	}
+}
+
+func (fc *FollowController) DealRelation(c *gin.Context) {
 	var form struct {
 		TargetId int64 `form:"target_id" json:"target_id" binding:"required,min=1"`
 		Action   uint8 `form:"action" json:"action" binding:"required,oneof=1 2"` // 1.follow 2.unfollow
@@ -17,7 +27,7 @@ func DealRelation(c *gin.Context) {
 		return
 	}
 
-	followService := service.NewFollowService(dao.Db)
+	followService := service.NewFollowService(repo.Db)
 
 	var err error
 	userId := getUserId(c)
@@ -34,9 +44,9 @@ func DealRelation(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-func GetFollowingList(c *gin.Context) {
+func (fc *FollowController) GetFollowingList(c *gin.Context) {
 	userId := getUserId(c)
-	followService := service.NewFollowService(dao.Db)
+	followService := service.NewFollowService(repo.Db)
 
 	list, err := followService.GetFollowingList(userId)
 	if err != nil {
@@ -47,9 +57,9 @@ func GetFollowingList(c *gin.Context) {
 	response.Success(c, list)
 }
 
-func GetFollowerList(c *gin.Context) {
+func (fc *FollowController) GetFollowerList(c *gin.Context) {
 	userId := getUserId(c)
-	followService := service.NewFollowService(dao.Db)
+	followService := service.NewFollowService(repo.Db)
 
 	list, err := followService.GetFollowerList(userId)
 	if err != nil {

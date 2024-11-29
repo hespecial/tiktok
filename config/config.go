@@ -4,6 +4,7 @@ type Config struct {
 	App   App
 	Log   Log
 	Mysql Mysql
+	Redis Redis
 }
 
 type App struct {
@@ -24,4 +25,11 @@ type Mysql struct {
 	Password string
 	Database string
 	Charset  string
+}
+
+type Redis struct {
+	Host     string
+	Port     int
+	Password string
+	Database int
 }

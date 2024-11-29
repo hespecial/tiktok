@@ -4,18 +4,28 @@ import (
 	"github.com/gin-gonic/gin"
 	"tiktok/common/enum"
 	"tiktok/common/response"
-	"tiktok/internal/repo/dao"
+	"tiktok/internal/repo"
 	"tiktok/internal/service"
 	"tiktok/pkg/jwt"
 	"tiktok/util"
 )
+
+type UserController struct {
+	service service.UserService
+}
+
+func NewUserController(service service.UserService) *UserController {
+	return &UserController{
+		service: service,
+	}
+}
 
 func getUserId(c *gin.Context) int64 {
 	userId, _ := c.Get(enum.ContextUserId)
 	return userId.(int64)
 }
 
-func Login(c *gin.Context) {
+func (uc *UserController) Login(c *gin.Context) {
 	var form struct {
 		Username string `form:"username" json:"username" binding:"required,min=4,max=30,alphanum"`
 		Password string `form:"password" json:"password" binding:"required,min=6,max=128"`
@@ -25,7 +35,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	userService := service.NewUserService(dao.Db)
+	userService := service.NewUserService(repo.Db)
 
 	user, err := userService.GetUserByUsername(form.Username)
 	if err != nil {
@@ -53,7 +63,7 @@ func Login(c *gin.Context) {
 	response.Success(c, data)
 }
 
-func Register(c *gin.Context) {
+func (uc *UserController) Register(c *gin.Context) {
 	var form struct {
 		Username string `form:"username" json:"username" binding:"required,required,min=4,max=30,alphanum"`
 		Password string `form:"password" json:"password" binding:"required,min=6,max=128"`
@@ -63,7 +73,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	userService := service.NewUserService(dao.Db)
+	userService := service.NewUserService(repo.Db)
 
 	user, err := userService.GetUserByUsername(form.Username)
 	if err != nil {
@@ -83,9 +93,9 @@ func Register(c *gin.Context) {
 	response.Success(c, nil)
 }
 
-func GetUserInfo(c *gin.Context) {
+func (uc *UserController) GetUserInfo(c *gin.Context) {
 	userId := getUserId(c)
-	userService := service.NewUserService(dao.Db)
+	userService := service.NewUserService(repo.Db)
 
 	user, err := userService.GetUserInfo(userId)
 	if err != nil {

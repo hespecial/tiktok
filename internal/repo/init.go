@@ -1,7 +1,9 @@
-package dao
+package repo
 
 import (
+	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -30,4 +32,16 @@ func InitMysql() {
 	db.Logger.LogMode(logger.Info)
 
 	Db = db
+}
+
+var Redis *redis.Client
+
+func InitRedis() {
+	Redis = redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", config.Conf.Redis.Host, config.Conf.Redis.Port),
+		DB:   config.Conf.Redis.Database,
+	})
+	if err := Redis.Ping(context.Background()).Err(); err != nil {
+		log.Fatal("Init redis error: ", err.Error())
+	}
 }

@@ -14,8 +14,8 @@ const (
 type Relation uint8
 
 const (
-	RelationFollow    Relation = 1
-	RelationUnfollow  Relation = 2
-	RelationFollowing Relation = 3
-	RelationFollower  Relation = 4
+	RelationFollow    Relation = 1 // 已关注
+	RelationUnfollow  Relation = 2 // 未关注
+	RelationFollowing Relation = 3 // 关注对象
+	RelationFollower  Relation = 4 // 粉丝
 )
