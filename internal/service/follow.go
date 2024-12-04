@@ -54,7 +54,7 @@ func (s *FollowServiceImpl) GetFollowingList(ctx context.Context, userId int64) 
 		return nil, err
 	}
 
-	var list []*UserInfo
+	list := make([]*UserInfo, 0, len(ids))
 	for _, id := range ids {
 		user, err := s.userRepo.GetUserById(ctx, id)
 		if err != nil {
@@ -90,7 +90,7 @@ func (s *FollowServiceImpl) GetFollowerList(ctx context.Context, userId int64) (
 		return nil, err
 	}
 
-	var list []*UserInfo
+	list := make([]*UserInfo, 0, len(ids))
 	for _, id := range ids {
 		user, err := s.userRepo.GetUserById(ctx, id)
 		if err != nil {

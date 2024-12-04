@@ -52,11 +52,10 @@ func Unauthorized(ctx *gin.Context) {
 	Handle(ctx, code.Unauthorized, nil)
 }
 
-func Success(ctx *gin.Context, data interface{}) {
-	if data == nil {
-		data = map[string]interface{}{
-			"result": true,
-		}
+func Success(ctx *gin.Context, data ...interface{}) {
+	if len(data) == 0 {
+		Handle(ctx, code.Success, struct{}{})
+	} else {
+		Handle(ctx, code.Success, data[0])
 	}
-	Handle(ctx, code.Success, data)
 }

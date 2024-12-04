@@ -1,12 +1,13 @@
-package config
+package global
 
 import (
 	"github.com/spf13/viper"
 	"log"
 	"tiktok/common/enum"
+	"tiktok/config"
 )
 
-var Conf *Config
+var Conf *config.Config
 
 func InitConfig() {
 	viper.SetConfigFile(enum.ConfigFile)

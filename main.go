@@ -1,16 +1,14 @@
 package main
 
 import (
-	"tiktok/common/logger"
-	"tiktok/config"
-	"tiktok/internal/repo"
+	"tiktok/global"
 	"tiktok/internal/router"
 )
 
 func main() {
-	config.InitConfig()
-	logger.InitLogger()
-	repo.InitMysql()
-	repo.InitRedis()
+	global.InitConfig()
+	global.InitLogger()
+	global.InitMysql()
+	global.InitRedis()
 	router.StartServer()
 }

@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"tiktok/config"
-	"tiktok/internal/controller"
-	"tiktok/internal/middleware"
+	"tiktok/global"
+	"tiktok/internal/router/api"
 )
 
 func StartServer() {
-	gin.SetMode(config.Conf.App.Mode)
+	gin.SetMode(global.Conf.App.Mode)
 	router := gin.Default()
 
 	router.GET("/ping", func(c *gin.Context) {
@@ -19,14 +18,9 @@ func StartServer() {
 		})
 	})
 
-	api := router.Group("/api")
-	api.POST("/user/login", controller.Login)
-	api.POST("/user/register", controller.Register)
-	api.GET("/user/info", middleware.Auth(), controller.GetUserInfo)
+	apiGroup := router.Group("/api")
+	api.RegisterUserRouter(apiGroup)
+	api.RegisterFollowRouter(apiGroup)
 
-	api.POST("/relation/action", middleware.Auth(), controller.DealRelation)
-	api.GET("/relation/following", middleware.Auth(), controller.GetFollowingList)
-	api.GET("/relation/follower", middleware.Auth(), controller.GetFollowerList)
-
-	log.Fatal(router.Run(fmt.Sprintf(":%s", config.Conf.App.Port)))
+	log.Fatal(router.Run(fmt.Sprintf(":%s", global.Conf.App.Port)))
 }

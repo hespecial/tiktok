@@ -30,21 +30,21 @@ func NewFollowRepo(dao dao.FollowDao, cache cache.FollowCache) FollowRepo {
 }
 
 func (f *followRepo) GetRelation(ctx context.Context, userId, followId int64) (*model.Follow, error) {
-	panic("implement me")
+	return f.dao.GetRelation(ctx, userId, followId)
 }
 
 func (f *followRepo) CreateRelation(ctx context.Context, userId, followId int64) error {
-	panic("implement me")
+	return f.dao.CreateRelation(ctx, userId, followId)
 }
 
 func (f *followRepo) UpdateRelation(ctx context.Context, userId, followId int64, action enum.Relation) error {
-	panic("implement me")
+	return f.dao.UpdateRelation(ctx, userId, followId, action)
 }
 
 func (f *followRepo) GetFollowIds(ctx context.Context, userId int64, _type enum.Relation) ([]int64, error) {
-	panic("implement me")
+	return f.dao.GetFollowIds(ctx, userId, _type)
 }
 
 func (f *followRepo) GetFollowCount(ctx context.Context, userId int64, _type enum.Relation) (int64, error) {
-	panic("implement me")
+	return f.dao.GetFollowCount(ctx, userId, _type)
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"tiktok/common/enum"
 	"tiktok/common/response"
-	"tiktok/internal/repo"
 	"tiktok/internal/service"
 	"tiktok/pkg/jwt"
 	"tiktok/util"
@@ -35,9 +34,7 @@ func (uc *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	userService := service.NewUserService(repo.Db)
-
-	user, err := userService.GetUserByUsername(form.Username)
+	user, err := uc.service.GetUserByUsername(c, form.Username)
 	if err != nil {
 		response.BadRequest(c, err)
 		return
@@ -73,9 +70,7 @@ func (uc *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	userService := service.NewUserService(repo.Db)
-
-	user, err := userService.GetUserByUsername(form.Username)
+	user, err := uc.service.GetUserByUsername(c, form.Username)
 	if err != nil {
 		response.BadRequest(c, err)
 		return
@@ -85,19 +80,18 @@ func (uc *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	if err = userService.CreateUser(form.Username, form.Password); err != nil {
+	if err = uc.service.CreateUser(c, form.Username, form.Password); err != nil {
 		response.BadRequest(c, err)
 		return
 	}
 
-	response.Success(c, nil)
+	response.Success(c)
 }
 
 func (uc *UserController) GetUserInfo(c *gin.Context) {
 	userId := getUserId(c)
-	userService := service.NewUserService(repo.Db)
 
-	user, err := userService.GetUserInfo(userId)
+	user, err := uc.service.GetUserInfo(c, userId)
 	if err != nil {
 		response.BadRequest(c, err)
 		return

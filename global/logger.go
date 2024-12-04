@@ -1,4 +1,4 @@
-package logger
+package global
 
 import (
 	"context"
@@ -7,12 +7,11 @@ import (
 	"log"
 	"log/slog"
 	"runtime"
-	"tiktok/config"
 	"time"
 )
 
 func InitLogger() {
-	file := fmt.Sprintf("%s/%s", config.Conf.Log.Path, config.Conf.Log.Name)
+	file := fmt.Sprintf("%s/%s", Conf.Log.Path, Conf.Log.Name)
 
 	writer, err := rotatelogs.New(
 		file+"_%Y%m%d.log",
@@ -27,7 +26,7 @@ func InitLogger() {
 	// 全局替换
 	slog.SetDefault(slog.New(&Handler{
 		w:     writer,
-		level: getLogLevel(config.Conf.Log.Level),
+		level: getLogLevel(Conf.Log.Level),
 	}))
 }
 
@@ -62,7 +61,7 @@ func (h *Handler) Handle(_ context.Context, r slog.Record) error {
 	msg := r.Message
 
 	// 获取调用者信息
-	pc, _, line, ok := runtime.Caller(6) // 跳过的调用堆栈深度，可根据需要调整
+	pc, _, line, ok := runtime.Caller(3) // 跳过的调用堆栈深度，可根据需要调整
 	var callerInfo string
 	if ok {
 		funcName := runtime.FuncForPC(pc).Name()

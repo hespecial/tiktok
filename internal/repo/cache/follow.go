@@ -1,10 +1,16 @@
 package cache
 
+import "github.com/redis/go-redis/v9"
+
 type FollowCache interface {
 }
 
-type followCache struct{}
+type followCache struct {
+	rdb *redis.Client
+}
 
-func NewFollowCache() FollowCache {
-	return &followCache{}
+func NewFollowCache(rdb *redis.Client) FollowCache {
+	return &followCache{
+		rdb: rdb,
+	}
 }

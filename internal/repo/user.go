@@ -23,13 +23,13 @@ func NewUserRepo(dao dao.UserDao) UserRepo {
 }
 
 func (u *userRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {
-	panic("implement me")
+	return u.dao.GetUserByUsername(ctx, username)
 }
 
 func (u *userRepo) CreateUser(ctx context.Context, user *model.User) error {
-	panic("implement me")
+	return u.dao.CreateUser(ctx, user)
 }
 
 func (u *userRepo) GetUserById(ctx context.Context, id int64) (*model.User, error) {
-	panic("implement me")
+	return u.dao.GetUserById(ctx, id)
 }
